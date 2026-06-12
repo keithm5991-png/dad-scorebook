@@ -1,7 +1,8 @@
 """Blank printable USA Softball-style score sheet (letter portrait PDF).
 Faithful to the official 2024 USA Softball sheet (p.7) with one modification:
-summary row 1 = RUNS over running TOTAL (slashed box per inning).
-Row 2 pairs HITS/ERRORS (official pairs RUNS/HITS, ERRORS/LOB; LOB dropped).
+summary = AWAY row + HOME row, each with RUNS-over-HITS slashed boxes per
+inning, so both teams' line score fits on one sheet (official pairs
+RUNS/HITS + ERRORS/LOB for one team).
 """
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -122,31 +123,27 @@ for b in range(BLOCKS):
         c.rect(x_rail + j * RAIL_W, yb, RAIL_W, BLOCK_H)
 y -= BLOCKS * BLOCK_H
 
-# ---------- summary block (THE MOD: RUNS over running TOTAL) ----------
-rows = [("RUNS", "TOTAL"), ("HITS", "ERRORS")]
-sum_top = y
-lbl_w = PLY_W * 0.55                      # SUMMARY stair label
-for k, (a, bb) in enumerate(rows):
+# ---------- summary block (THE MOD: AWAY/HOME rows, RUNS over HITS each) ----------
+teams = ["AWAY", "HOME"]
+lbl_w = PLY_W * 0.55                      # team label box
+for k, team in enumerate(teams):
     yr = y - (k + 1) * SUM_H
+    # team box
+    c.rect(x0, yr, lbl_w, SUM_H)
+    c.setFont("Helvetica-Bold", 7)
+    c.drawCentredString(x0 + lbl_w / 2, yr + SUM_H / 2 - 2.5, team)
     # diagonal label cell (right part of players col + POS col)
     lx, lw_ = x0 + lbl_w, (PLY_W - lbl_w) + POS_W
     c.rect(lx, yr, lw_, SUM_H)
     c.line(lx, yr, lx + lw_, yr + SUM_H)
     c.setFont("Helvetica-Bold", 4.6)
-    c.drawString(lx + 2, yr + SUM_H - 5.5, a)
-    c.drawRightString(lx + lw_ - 2, yr + 2, bb)
+    c.drawString(lx + 2, yr + SUM_H - 5.5, "RUNS")
+    c.drawRightString(lx + lw_ - 2, yr + 2, "HITS")
     # slashed inning boxes
     for i in range(INN):
         x = x_inn + i * INN_W
         c.rect(x, yr, INN_W, SUM_H)
         c.line(x, yr, x + INN_W, yr + SUM_H)
-# SUMMARY stair text spanning both rows
-c.rect(x0, y - 2 * SUM_H, lbl_w, 2 * SUM_H)
-c.setFont("Helvetica-Bold", 6)
-word = "SUMMARY"
-for k, ch in enumerate(word):
-    c.drawString(x0 + 3 + k * (lbl_w - 10) / len(word),
-                 y - 7 - k * (2 * SUM_H - 10) / len(word), ch)
 # rail footer totals (one tall box per rail col with rotated label)
 for j, s in enumerate(RAIL):
     x = x_rail + j * RAIL_W

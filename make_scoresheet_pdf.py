@@ -1,8 +1,8 @@
 """Blank printable USA Softball-style score sheet (letter portrait PDF).
 Faithful to the official 2024 USA Softball sheet (p.7) with one modification:
-summary = AWAY row + HOME row, each with RUNS-over-HITS slashed boxes per
-inning, so both teams' line score fits on one sheet (official pairs
-RUNS/HITS + ERRORS/LOB for one team).
+summary = AWAY row + HOME row, each with RUNS-over-running-TOTAL slashed
+boxes per inning, so both teams' score and cumulative tally fit on one
+sheet (official pairs RUNS/HITS + ERRORS/LOB for one team).
 """
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -138,7 +138,7 @@ for k, team in enumerate(teams):
     c.line(lx, yr, lx + lw_, yr + SUM_H)
     c.setFont("Helvetica-Bold", 4.6)
     c.drawString(lx + 2, yr + SUM_H - 5.5, "RUNS")
-    c.drawRightString(lx + lw_ - 2, yr + 2, "HITS")
+    c.drawRightString(lx + lw_ - 2, yr + 2, "TOTAL")
     # slashed inning boxes
     for i in range(INN):
         x = x_inn + i * INN_W
